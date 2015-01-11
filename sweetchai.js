@@ -6,18 +6,32 @@ Artists = new Mongo.Collection("artists");
 Router.route('/song/:id', function() {
   var id = this.params.id;
   var song = Songs.findOne({_id: id});
-  if (typeof(song) !== 'undefined') {
-    var fs = Meteor.npmRequire('fs');
-    var stat = fs.statSync(song.file);
-    this.response.writeHead(200, {
-      'Content-type': 'audio/mpeg3', 
-      'Accept-Ranges': 'bytes',
-      'Content-Length': stat.size
-    });
-    fs.createReadStream(song.file).pipe(this.response);
-  } else {
+  if (typeof(song) === 'undefined') {
     this.response.writeHead(404);
     this.response.end();
+    return;
+  }
+  
+  var fs = Meteor.npmRequire('fs');
+  var stat = fs.statSync(song.file);
+  var header = {
+    'Content-Type': 'audio/mpeg',
+    'Content-Length': stat.size,
+    'Connection': 'keep-alive',
+    'Accept-Ranges': 'bytes'
+  };
+  
+  if (typeof(this.request.headers.range) !== 'undefined') {
+    var parts = this.request.headers.range.replace(/bytes=/, "").split("-"); 
+    var start = parseInt(parts[0], 10); 
+    var end = parts[1] ? parseInt(parts[1], 10) : stat.size-1;       
+    header['Content-Range'] = 'bytes ' + start + '-' + end + '/' + stat.size;
+    header['Content-Length'] = (end-start) + 1;
+    this.response.writeHead(206, header);
+    fs.createReadStream(song.file, {start: start, end: end}).pipe(this.response);
+  } else {
+    this.response.writeHead(200, header);
+    fs.createReadStream(song.file).pipe(this.response);
   }
 }, { where: 'server' });
 
