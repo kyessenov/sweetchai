@@ -35,17 +35,12 @@ if (Meteor.isClient) {
   audio.volume = 1;
   audio.ontimeupdate = function () { Session.setPersistent("t", audio.currentTime); };
   audio.ondurationchange = function () { Session.setPersistent("duration", audio.duration); };
-  audio.onended = function () { 
-    Queue.remove(Queue.findOne({t: Session.get("tid")})._id);
-    audio.nextSong() 
-  };
+  audio.onended = function () { Queue.remove(Session.get("qid")); };
   audio.playSong = function (q) {
-    if (q !== undefined) {
-      Session.set("initial", -Math.random());
-      Session.setPersistent("tid", q.t);
-      Session.setPersistent("qid", q._id);
-      Session.setPersistent("id", q.song._id);
-    } 
+    Session.set("initial", -Math.random());
+    Session.setPersistent("tid", q === undefined ? undefined : q.t);
+    Session.setPersistent("qid", q === undefined ? undefined : q._id);
+    Session.setPersistent("id", q === undefined ? undefined : q.song._id); 
   };
   audio.prevSong = function () {
     audio.playSong(Queue.findOne({t: {$lt: Session.get("tid")} }, { sort: {t: -1}}))
@@ -53,18 +48,13 @@ if (Meteor.isClient) {
   audio.nextSong = function () { 
     audio.playSong(Queue.findOne({t: {$gt: Session.get("tid")} }, { sort: {t: 1} })) 
   };
-  audio.stopSong = function () {
-    Session.setPersistent("tid", -1);
-    Session.setPersistent("qid", -1);
-    Session.setPersistent("id", 0);
-  };
   var enqueue = function (song) { 
     var last = Queue.findOne({}, {sort:{t: -1}});
     Queue.insert({song: song, t: last === undefined ? 1 : last.t + 1 }); 
   };
 
   Queue.find({}).observeChanges({
-    removed: function (id) { if (id === Session.get("qid")) { audio.stopSong(); audio.nextSong() }}
+    removed: function (id) { if (id === Session.get("qid")) { audio.nextSong() }}
   });
   Template.library.helpers({
     count: function () { return Songs.find({}).count() },
@@ -76,15 +66,19 @@ if (Meteor.isClient) {
   });
   Template.queue.helpers({
     count: function () { return Queue.find({}).count() },
-    qsongs: function () { return Queue.find({}, {sort: ["tid"]}) }
+    qsongs: function () { return Queue.find({}, {sort: { t: 1}}) }
   });
   Template.queue.events({
     'click .clear': function () { Meteor.call("clear"); },
-    'click .shuffle': function () { audio.stopSong(); Meteor.call("shuffle"); }
+    'click .shuffle': function () { audio.playSong(undefined); Meteor.call("shuffle"); }
   });
   Template.player.helpers({
     current: function () { 
-      var out = Queue.findOne({t: Session.get("tid")});
+      audio.src = '';
+      audio.currentTime = 0;
+      audio.pause();
+      delete audio.oncanplay;
+      var out = Queue.findOne(Session.get("qid"));
       if (out !== undefined) {
         audio.src = '/song/'+out.song._id;
         var initial = Session.get("initial");
@@ -92,15 +86,11 @@ if (Meteor.isClient) {
           audio.currentTime = initial > 0 ? initial : 0; 
           delete audio.oncanplay;
         };
-        audio.currentTime = 0;
         audio.play();
         return out.song;
-      } else {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.src = '';
-        return undefined;
       } 
+
+      return undefined; 
     },
     timer: function () { return buzz.toTimer(Session.get("t")) },
     duration: function () { return buzz.toTimer(Session.get("duration")) }
