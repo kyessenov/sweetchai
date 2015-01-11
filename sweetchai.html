@@ -1,0 +1,74 @@
+<head>
+  <title>sweetchai</title>
+</head>
+
+<body>
+</body>
+
+<template name='home'>
+<div class="container-fluid">
+  {{> player }}
+  <div class='row'>
+    {{> library }}
+    {{> queue }}
+  </div>
+</div>
+</template>
+
+<template name="album">
+{{#if nonempty }}
+<div class='album row'>
+  <div class='col-md-3'>
+    <a class='play'>{{album}}</a> 
+    <br>{{#each artists}} {{> artist }} {{/each}}
+  </div>
+  <div class='col-md-9'>{{#each songs}} {{> song}} {{/each}}</div>
+</div>
+{{/if}}
+</template>
+
+<template name="artist">
+<span class='artist'>{{ artist }}</span>
+</template>
+
+<template name="song">
+<div id='{{_id}}' class='song col-md-6 {{#if playing}}playing{{/if}}'>
+  {{ title }} 
+</div>
+</template>
+
+<template name='player'>
+<div style='display:none'>
+  {{ current }}
+</div>
+<div id='player'>
+  <a class='glyphicon glyphicon-backward prev'></a>  
+  <a class='glyphicon glyphicon-step-forward toggle'></a>  
+  <a class='glyphicon glyphicon-forward next'></a>  
+  <a class='current'>{{ current.artist }} - {{ current.title }} {{ timer }} / {{ duration }}</a>
+</div>
+</template>
+
+<template name="library">
+<div id='library' class='col-md-10'>
+  <a class='update'>update</a> <a class='random'>random</a> {{ count }} songs
+{{#each albums}}
+{{> album}}
+{{/each}}
+</div>
+</template>
+
+<template name="queue">
+<div id='queue' class='col-md-2'>
+  <a class='glyphicon glyphicon-minus-sign clear'></a>
+  <a class='shuffle'>shuffle</a> {{ count }} songs
+{{#each qsongs }} {{> qsong}} {{/each}}
+</div>
+</template>
+
+<template name="qsong">
+<div class='qsong {{#if playing}}playing{{/if}}'>
+  <a class='glyphicon glyphicon-minus-sign remove'></a>
+  <span class='title'>{{ song.artist }} - {{ song.title }}</span>
+</div>
+</template>

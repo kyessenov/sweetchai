@@ -1,0 +1,76 @@
+/* CSS declarations go here */
+body {
+  background: #111;
+  color: #fff;
+}
+
+#player {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 50px;
+  overflow: scroll;
+  font-size: 36px;
+  z-index: 2;
+  background: rgba(0,0,0,.5);
+}
+
+
+#library {
+  margin-top: 50px;
+  z-index: 1;
+}
+
+#queue {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  overflow: scroll;
+}
+
+a {
+  color: rgb(210, 255, 120);
+}
+
+a:hover, a:focus, a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.artist {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.song {
+  color: #ddd;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.qsong {
+  color: #ddd;
+  font-size: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.artist:hover, .qsong:hover, .song:hover {
+  color: rgba(210, 255, 120, .8)
+}
+
+.album {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.album:hover {
+  background: #222;
+}
+
+.playing{
+  color: rgb(210, 255, 120)
+}
