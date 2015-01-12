@@ -9,22 +9,21 @@
 <div class="container-fluid">
   {{> player }}
   <div class='row'>
-    {{> library }}
     {{> queue }}
+    {{> library }}
   </div>
 </div>
 </template>
 
 <template name="album">
-{{#if nonempty }}
 <div class='album row'>
   <div class='col-md-3'>
-    <a class='play'>{{album}}</a> 
+    <a class='play'>{{album}}</a>
+    <span class='label label-default'>{{count}}</span>
     <br>{{#each artists}} {{> artist }} {{/each}}
   </div>
-  <div class='col-md-9'>{{#each songs}} {{> song}} {{/each}}</div>
+  <div class='songs col-md-offset-3'>{{#each songs}} {{> song}}<br> {{/each}}</div>
 </div>
-{{/if}}
 </template>
 
 <template name="artist">
@@ -32,9 +31,7 @@
 </template>
 
 <template name="song">
-<div id='{{_id}}' class='song col-md-6 {{#if playing}}playing{{/if}}'>
-  {{ title }} 
-</div>
+<a id='{{_id}}' class='song {{#if playing}}playing{{/if}}'>{{track}}. {{ title }} </a>
 </template>
 
 <template name='player'>
@@ -50,8 +47,8 @@
 </template>
 
 <template name="library">
-<div id='library' class='col-md-10'>
-  <a class='update'>update</a> <a class='random'>random</a> {{ count }} songs
+<div id='library'>
+  <a class='update'>update</a> <a class='random'>random</a> <span class='label label-default'>{{ count }}</span>
 {{#each albums}}
 {{> album}}
 {{/each}}
@@ -59,9 +56,9 @@
 </template>
 
 <template name="queue">
-<div id='queue' class='col-md-2'>
+<div id='queue'>
   <a class='glyphicon glyphicon-minus-sign clear'></a>
-  <a class='shuffle'>shuffle</a> {{ count }} songs
+  <a class='shuffle'>shuffle</a> <span class='label label-default'>{{ count }}</span>
 {{#each qsongs }} {{> qsong}} {{/each}}
 </div>
 </template>

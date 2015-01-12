@@ -116,7 +116,7 @@ if (Meteor.isClient) {
     'click .current': function () { $('body, html').scrollTop($('#'+ Session.get("id")).offset().top - 50) }
   });
   Template.album.helpers({
-    nonempty: function () { return Artists.find({album: this.album}).count() > 0 },
+    count: function () { return Songs.find({album: this.album}).count() },
     artists: function () { return Artists.find({album: this.album}, {sort: ["artist"]}); },
     songs: function () { return Songs.find({album: this.album}, {sort: ["track"]}) }
   });
